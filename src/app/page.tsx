@@ -1,3 +1,4 @@
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { SignInButton, UserButton } from "@clerk/nextjs";
 
 const HomePage = () => {
@@ -5,6 +6,7 @@ const HomePage = () => {
     <>
       <SignInButton />
       <UserButton />
+      <ThemeToggle />
     </>
   );
 };
