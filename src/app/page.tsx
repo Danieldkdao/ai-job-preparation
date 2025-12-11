@@ -7,7 +7,7 @@ import { Suspense } from "react";
 const HomePage = () => {
   return (
     <>
-
+      <SignInButton />
     </>
   );
 };

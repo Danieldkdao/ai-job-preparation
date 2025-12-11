@@ -5,13 +5,13 @@ import { auth } from "@clerk/nextjs/server";
 import { eq } from "drizzle-orm";
 import { cacheTag } from "next/cache";
 
-export const getCurrentUser = async ({ allData = false }) => {
+export const getCurrentUser = async ({ allData = false } = {}) => {
   const { userId, redirectToSignIn } = await auth();
 
   return {
     userId,
     redirectToSignIn,
-    user: allData && userId !== null ? getUser(userId) : undefined,
+    user: allData && userId !== null ? await getUser(userId) : undefined,
   };
 };
 
