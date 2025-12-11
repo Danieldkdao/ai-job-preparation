@@ -1,11 +1,14 @@
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { db } from "@/drizzle/db";
 import { JobInfoTable } from "@/drizzle/schema";
+import { JobInfoForm } from "@/features/jobInfos/components/JobInfoForm";
 import { getJobInfoUserTag } from "@/features/jobInfos/dbCache";
 import { getCurrentUser } from "@/services/clerk/lib/getCurrentUser";
 import { desc, eq } from "drizzle-orm";
-import { Loader2 } from "lucide-react";
+import { Loader2, PlusIcon } from "lucide-react";
 import { cacheTag } from "next/cache";
+import Link from "next/link";
 import { Suspense } from "react";
 
 const AppPage = () => {
@@ -34,13 +37,27 @@ const JobInfos = async () => {
     return <NoJobInfos />;
   }
 
-  return null;
+  return (
+    <div className="container my-4">
+      <div className="flex gap-2 justify-between mb-6">
+        <h1 className="text-3xl md:text-4xl lg:text-5xl mb-4">
+          Select a job description
+        </h1>
+        <Button asChild>
+          <Link href="/app/job-infos/new">
+            <PlusIcon />
+            Create Job Description
+          </Link>
+        </Button>
+      </div>
+    </div>
+  );
 };
 
 const NoJobInfos = () => {
   return (
     <div className="container my-4 max-w-5xl">
-      <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold">
+      <h1 className="text-3xl md:text-4xl lg:text-5xl mb-4">
         Welcome to Landr
       </h1>
       <p className="mt-2 text-muted-foreground mb-8">
@@ -52,7 +69,7 @@ const NoJobInfos = () => {
       </p>
       <Card>
         <CardContent>
-          {/* <JobInfoForm /> */}
+          <JobInfoForm />
         </CardContent>
       </Card>
     </div>
