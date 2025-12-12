@@ -6,7 +6,7 @@ import type {
 
 type Message = JsonMessage | ConnectionMessage | ReturnChatEvent;
 
-export const condensedChatMessages = (messages: Message[]) => {
+export const condenseChatMessages = (messages: Message[]) => {
   return messages.reduce((acc, message) => {
     const data = getChatEventData(message) ?? getJsonMessageData(message);
     if (data == null || data.content == null) {
