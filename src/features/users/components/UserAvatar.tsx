@@ -9,8 +9,8 @@ const UserAvatar = ({
   user,
   ...props
 }: {
-  user: { name: string; imageUrl: string } & ComponentProps<typeof Avatar>;
-}) => {
+  user: { name: string; imageUrl: string };
+} & ComponentProps<typeof Avatar>) => {
   return (
     <Avatar {...props}>
       <AvatarImage src={user.imageUrl} alt={user.name} />

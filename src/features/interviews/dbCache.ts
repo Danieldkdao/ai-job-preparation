@@ -18,7 +18,7 @@ export const getInterviewIdTag = (id: string) => {
   return getIdTag("interviews", id);
 };
 
-export const revalidateJobInfosCache = ({
+export const revalidateInterviewCache = ({
   id,
   jobInfoId,
 }: {
