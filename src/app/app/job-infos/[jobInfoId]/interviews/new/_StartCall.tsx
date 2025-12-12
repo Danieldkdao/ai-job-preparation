@@ -68,7 +68,6 @@ export const StartCall = ({
         <Button
           size="lg"
           onClick={async () => {
-            // TODO: Create interview
             const res = await createInterview({ jobInfoId: jobInfo.id });
             if (res.error) {
               return errorToast(res.message);

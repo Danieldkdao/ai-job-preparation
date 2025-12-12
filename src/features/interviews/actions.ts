@@ -8,6 +8,8 @@ import { and, eq } from "drizzle-orm";
 import { InterviewTable, JobInfoTable } from "@/drizzle/schema";
 import { insertInterview, updateInterview as updateInterviewDb } from "./db";
 import { getInterviewIdTag } from "./dbCache";
+import { canCreateInterview } from "./permissions";
+import { PLAN_LIMIT_MESSAGE } from "@/lib/errorToast";
 
 export const createInterview = async ({
   jobInfoId,
@@ -23,7 +25,12 @@ export const createInterview = async ({
       message: "You don't have permission to do this",
     };
 
-  // TODO: Permissions
+  if(!(await canCreateInterview())) {
+    return {
+      error: true,
+      message: PLAN_LIMIT_MESSAGE,
+    }
+  }
   // TODO: Rate limit
 
   const jobInfo = await getJobInfo(jobInfoId, userId);
