@@ -2,6 +2,7 @@ import BackLink from "@/components/BackLink";
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
 import { Skeleton, SkeletonButton } from "@/components/Skeleton";
 import { SuspendedItem } from "@/components/SuspendedItem";
+import { ActionButton } from "@/components/ui/action-button";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -11,6 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { db } from "@/drizzle/db";
 import { InterviewTable } from "@/drizzle/schema";
+import { generateInterviewFeedback } from "@/features/interviews/actions";
 import { getInterviewIdTag } from "@/features/interviews/dbCache";
 import { getJobInfoIdTag } from "@/features/jobInfos/dbCache";
 import { formatDateTime } from "@/lib/formatters";
@@ -70,12 +72,19 @@ const InterviewPage = async ({
             item={interview}
             fallback={<SkeletonButton className="w-32" />}
             result={(i) =>
-              i.feedback == null ? null : ( // TODO: Feedback
+              i.feedback == null ? (
+                <ActionButton
+                  action={generateInterviewFeedback.bind(null, i.id)}
+                  className="cursor-pointer"
+                >
+                  Generate Feedback
+                </ActionButton>
+              ) : (
                 <Dialog>
                   <DialogTrigger asChild>
-                    <Button>View Feedback</Button>
+                    <Button className="cursor-pointer">View Feedback</Button>
                   </DialogTrigger>
-                  <DialogContent className="md:max-w-3xl lg:max-w-4xl max-h-[calc(100% - 2rem)] overflow-y-auto flex flex-col">
+                  <DialogContent className="md:max-w-3xl lg:max-w-4xl max-h-[calc(100%-2rem)] overflow-y-auto flex flex-col">
                     <DialogTitle>Feedback</DialogTitle>
                     <MarkdownRenderer>{i.feedback}</MarkdownRenderer>
                   </DialogContent>
