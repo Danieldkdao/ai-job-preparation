@@ -18,7 +18,7 @@ import {
 } from "@/drizzle/schema";
 import { formatQuestionDifficulty } from "@/features/questions/formatters";
 import { useState, type Dispatch, type SetStateAction } from "react";
-import { useChat, useCompletion } from "@ai-sdk/react";
+import { useChat } from "@ai-sdk/react";
 import { errorToast } from "@/lib/errorToast";
 import { DefaultChatTransport, UIMessage } from "ai";
 
@@ -41,7 +41,7 @@ export const NewQuestionClientPage = ({
   const [questionId, setQuestionId] = useState<string | null>(null);
 
   const {
-    messages,
+    messages: questions,
     setMessages: setQuestion,
     sendMessage: generateQuestion,
     status: ResponseProgress,
@@ -50,7 +50,6 @@ export const NewQuestionClientPage = ({
       api: "/api/ai/questions/generate-question",
     }),
     onData: (dataPart) => {
-      console.log(dataPart.data);
       setQuestionId(dataPart.data);
     },
     onFinish: () => {
@@ -63,7 +62,7 @@ export const NewQuestionClientPage = ({
 
   const isGeneratingQuestion =
     ResponseProgress === "submitted" || ResponseProgress === "streaming";
-  const lastQuestion = messages
+  const lastQuestion = questions
     .filter((msg) => msg.role === "assistant")
     .slice(-1)[0];
 
@@ -71,13 +70,16 @@ export const NewQuestionClientPage = ({
     .filter((p) => p.type === "text")
     .map((p) => p.text)
     .join("");
+
   const {
-    complete: generateFeedback,
-    completion: feedback,
-    setCompletion: setFeedback,
-    isLoading: isGeneratingFeedback,
-  } = useCompletion({
-    api: "/api/ai/questions/generate-feedback",
+    messages: feedbacks,
+    setMessages: setFeedback,
+    sendMessage: generateFeedback,
+    status: FeedbackProgress,
+  } = useChat({
+    transport: new DefaultChatTransport({
+      api: "/api/ai/questions/generate-feedback",
+    }),
     onFinish: () => {
       setStatus("awaiting-difficulty");
     },
@@ -85,6 +87,17 @@ export const NewQuestionClientPage = ({
       errorToast(error.message);
     },
   });
+
+  const isGeneratingFeedback =
+    FeedbackProgress === "submitted" || FeedbackProgress === "streaming";
+  const lastFeedback = feedbacks
+    .filter((msg) => msg.role === "assistant")
+    .slice(-1)[0];
+
+  const feedback = lastFeedback?.parts
+    .filter((p) => p.type === "text")
+    .map((p) => p.text)
+    .join("");
 
   return (
     <div className="flex flex-col items-center gap-4 max-w-[2000px] mx-auto grow h-screen-header">
@@ -98,21 +111,24 @@ export const NewQuestionClientPage = ({
           reset={() => {
             setStatus("awaiting-difficulty");
             setQuestion([]);
-            setFeedback("");
+            setFeedback([]);
             setAnswer(null);
           }}
           disableAnswerButton={
-            answer == null || answer.trim() === "" || questionId == null
+            answer == null ||
+            answer.trim() === "" ||
+            questionId == null ||
+            isGeneratingFeedback
           }
           status={status}
           isLoading={isGeneratingFeedback || isGeneratingQuestion}
           generateFeedback={() => {
             if (answer == null || answer.trim() === "") return;
-            generateFeedback(answer.trim(), { body: { questionId } });
+            generateFeedback({ text: answer.trim() }, { body: { questionId } });
           }}
           generateQuestion={(difficulty) => {
             setQuestion([]);
-            setFeedback("");
+            setFeedback([]);
             setAnswer(null);
             generateQuestion(
               { text: difficulty },
@@ -224,7 +240,7 @@ const Controls = ({
             <LoadingSwap isLoading={isLoading}>Skip</LoadingSwap>
           </Button>
           <Button
-            onClick={reset}
+            onClick={generateFeedback}
             disabled={disableAnswerButton}
             size="sm"
             className="cursor-pointer"

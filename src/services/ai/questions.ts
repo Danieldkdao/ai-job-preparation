@@ -24,13 +24,10 @@ export const generateAiQuestion = ({
   difficulty: QuestionDifficulty;
   onFinish: (question: string) => void;
 }) => {
-  const previousMessages = previousQuestions.flatMap(
-    (q): ModelMessage[] =>
-      [
-        { role: "user", content: q.difficulty },
-        { role: "assistant", content: q.text },
-      ]
-  );
+  const previousMessages = previousQuestions.flatMap((q): ModelMessage[] => [
+    { role: "user", content: q.difficulty },
+    { role: "assistant", content: q.text },
+  ]);
 
   return streamText({
     model: openrouter.chat(env.OPEN_ROUTER_MODEL),
@@ -59,5 +56,47 @@ export const generateAiQuestion = ({
     - It is ok to ask a question about just a single part of the job description, such as a specific technology or skill (e.g., if the job description is for a Next.js, Drizzle, and TypeScript developer, you can ask a TypeScript only question).
     - The question should be formatted as markdown, but not inside a markdown code block. Just plain markdown that can be rendered.
     - Stop generating output as soon you have provided the full question.`,
+  });
+};
+
+export const generateAiQuestionFeedback = ({
+  question,
+  answer,
+}: {
+  question: string;
+  answer: string;
+}) => {
+  return streamText({
+    model: openrouter.chat(env.OPEN_ROUTER_MODEL),
+    prompt: answer,
+    system: `You are an expert technical interviewer. Your job is to evaluate the candidate's answer to a technical interview question.
+
+    The original question was:
+    \`\`\`
+    ${question}
+    \`\`\`
+    
+    Instructions:
+    - Review the candidate's answer (provided in the user prompt).
+    - Assign a rating from **1 to 10**, where:
+      - 10 = Perfect, complete, and well-articulated
+      - 7-9 = Mostly correct, with minor issues or room for optimization
+      - 4-6 = Partially correct or incomplete
+      - 1-3 = Largely incorrect or missing the point
+    - Provide **concise, constructive feedback** on what was done well and what could be improved.
+    - Be honest but professional.
+    - Include a full correct answer in the output. Do not use this answer as part of the grading. Only look at the candidate's response when assigning a rating.
+    - Try to generate a concise answer where possible, but do not sacrifice quality for brevity.
+    - Refer to the candidate as "you" in your feedback. This feedback should be written as if you were speaking directly to the interviewee.
+    - Stop generating output as soon you have provided the rating, feedback, and full correct answer.
+    
+    Output Format (strictly follow this structure):
+    \`\`\`
+    ## Feedback (Rating: <Your rating from 1 to 10>/10)
+    <Your written feedback as markdown that can be rendered, not markdown inside a code block>
+    ---
+    ## Correct Answer
+    <The full correct answer as markdown that can be rendered, not markdown inside a code block>
+    \`\`\``,
   });
 };
