@@ -1,6 +1,7 @@
 import { db } from "@/drizzle/db";
 import { UserTable } from "@/drizzle/schema";
 import { eq } from "drizzle-orm";
+import { revalidateUserCache } from "./dbCache";
 
 export const upsertUser = async (user: typeof UserTable.$inferInsert) => {
   await db
@@ -10,8 +11,12 @@ export const upsertUser = async (user: typeof UserTable.$inferInsert) => {
       target: [UserTable.id],
       set: user,
     });
+
+  revalidateUserCache(user.id);
 };
 
 export const deleteUser = async (id: string) => {
   await db.delete(UserTable).where(eq(UserTable.id, id));
+
+  revalidateUserCache(id);
 };

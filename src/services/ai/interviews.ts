@@ -18,19 +18,22 @@ export const generateAiInterviewFeedback = async ({
 }) => {
   const messages = await fetchChatMessages(humeChatId);
 
-  const formattedMessages = messages.map((message) => {
-    if (message.type !== "USER_MESSAGE" && message.type !== "AGENT_MESSAGE") {
-      return null;
-    }
-    if (message.messageText == null) return null;
+  const formattedMessages = messages
+    .map((message) => {
+      if (message.type !== "USER_MESSAGE" && message.type !== "AGENT_MESSAGE") {
+        return null;
+      }
+      if (message.messageText == null) return null;
 
-    return {
-      speaker: message.type === "USER_MESSAGE" ? "interviewee" : "interviewer",
-      text: message.messageText,
-      emotionFeatures:
-        message.role === "USER" ? message.emotionFeatures : undefined,
-    };
-  });
+      return {
+        speaker:
+          message.type === "USER_MESSAGE" ? "interviewee" : "interviewer",
+        text: message.messageText,
+        emotionFeatures:
+          message.role === "USER" ? message.emotionFeatures : undefined,
+      };
+    })
+    .filter((m) => m !== null);
 
   const { text } = await generateText({
     model: openrouter.chat(env.OPEN_ROUTER_MODEL),
