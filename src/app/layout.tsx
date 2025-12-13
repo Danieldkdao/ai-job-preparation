@@ -4,6 +4,8 @@ import "./globals.css";
 import ClerkProvider from "@/services/clerk/components/ClerkProvider";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "sonner";
+import { Suspense } from "react";
+import { Loader2Icon } from "lucide-react";
 
 const outfitSans = Outfit({
   variable: "--font-outfit-sans",
@@ -21,22 +23,30 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
-      <html lang="en" suppressHydrationWarning>
-        <body
-          className={`${outfitSans.variable} ${outfitSans.className} antialiased`}
-        >
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableColorScheme
-            disableTransitionOnChange
+    <Suspense
+      fallback={
+        <div className="h-screen w-full flex justify-center items-center">
+          <Loader2Icon className="size-24 animate-spin" />
+        </div>
+      }
+    >
+      <ClerkProvider>
+        <html lang="en" suppressHydrationWarning>
+          <body
+            className={`${outfitSans.variable} ${outfitSans.className} antialiased`}
           >
-            {children}
-            <Toaster />
-          </ThemeProvider>
-        </body>
-      </html>
-    </ClerkProvider>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableColorScheme
+              disableTransitionOnChange
+            >
+              {children}
+              <Toaster />
+            </ThemeProvider>
+          </body>
+        </html>
+      </ClerkProvider>
+    </Suspense>
   );
 }

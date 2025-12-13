@@ -11,7 +11,7 @@ const AppLayoutContent = async ({ children }: { children: ReactNode }) => {
 
   return (
     <>
-      <Navbar user={{ name: user.name, imageUrl: user.imageUrl }} />
+      <Navbar user={{ name: user?.name ?? "", imageUrl: user?.imageUrl ?? "" }} />
       {children}
     </>
   );

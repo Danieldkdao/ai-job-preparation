@@ -7,6 +7,7 @@ import { buttonVariants } from "@/components/ui/button";
 const ClerkProvider = ({ children }: { children: ReactNode }) => {
   return (
     <OriginalClerkProvider
+      dynamic
       appearance={{
         cssLayerName: "vendor",
         variables: {
