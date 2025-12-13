@@ -2,7 +2,6 @@ import {
   getGlobalTag,
   getIdTag,
   getJobInfoTag,
-  getUserTag,
 } from "@/lib/dataCache";
 import { revalidateTag } from "next/cache";
 

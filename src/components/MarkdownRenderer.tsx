@@ -7,7 +7,7 @@ export const MarkdownRenderer = ({
   ...props
 }: { className?: string } & ComponentProps<typeof Markdown>) => {
   return (
-    <div className={cn("max-w-none prose prose neutral dark:prose-invert font-sans")}>
+    <div className={cn("max-w-none prose prose-neutral dark:prose-invert font-sans", className)}>
       <Markdown {...props}/>
     </div>
   );

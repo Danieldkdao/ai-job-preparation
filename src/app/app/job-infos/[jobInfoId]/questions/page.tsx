@@ -8,6 +8,7 @@ import { Loader2Icon } from "lucide-react";
 import { cacheTag } from "next/cache";
 import { notFound, redirect } from "next/navigation";
 import { Suspense } from "react";
+import { NewQuestionClientPage } from "./_NewQuestionClientPage";
 
 const QuestionsPage = async ({
   params,
@@ -38,6 +39,8 @@ const SuspendedComponent = async ({ jobInfoId }: { jobInfoId: string }) => {
 
   const jobInfo = await getJobInfo(jobInfoId, userId);
   if (jobInfo == null) return notFound();
+
+  return <NewQuestionClientPage jobInfo={jobInfo} />
 };
 
 const getJobInfo = async (id: string, userId: string) => {
