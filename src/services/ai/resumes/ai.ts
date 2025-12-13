@@ -1,6 +1,6 @@
 import { JobInfoTable } from "@/drizzle/schema";
 import { streamObject } from "ai";
-import { openrouter } from "../ai/models/openrouter";
+import { openrouter } from "../models/openrouter";
 import { env } from "@/data/env/server";
 import { aiAnalyzeSchema } from "./schemas";
 

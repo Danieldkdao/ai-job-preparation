@@ -4,7 +4,7 @@ import { getJobInfoIdTag } from "@/features/jobInfos/dbCache";
 import { canRunResumeAnalysis } from "@/features/resumeAnalyses/permissions";
 import { PLAN_LIMIT_MESSAGE } from "@/lib/errorToast";
 import { getCurrentUser } from "@/services/clerk/lib/getCurrentUser";
-import { analyzeResumeForJob } from "@/services/resumes/ai";
+import { analyzeResumeForJob } from "@/services/ai/resumes/ai";
 import { and, eq } from "drizzle-orm";
 import { cacheTag } from "next/cache";
 
@@ -54,7 +54,7 @@ export const POST = async (req: Request) => {
   const res = await analyzeResumeForJob({
     resumeFile,
     jobInfo,
-  })
+  });
 
   return res.toTextStreamResponse();
 };
