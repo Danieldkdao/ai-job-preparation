@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 
-export const Skeleton = ({ className }: { className: string }) => {
+export const Skeleton = ({ className }: { className?: string }) => {
   return (
     <span
       className={cn(

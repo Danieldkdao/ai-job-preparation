@@ -1,6 +1,6 @@
 import { JobInfoTable } from "@/drizzle/schema";
 import { fetchChatMessages } from "../hume/lib/api";
-import { generateText } from 'ai';
+import { generateText } from "ai";
 import { openrouter } from "./models/openrouter";
 import { env } from "@/data/env/server";
 

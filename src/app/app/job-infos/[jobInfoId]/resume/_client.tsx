@@ -1,5 +1,8 @@
 "use client";
 
+import { Skeleton } from "@/components/Skeleton";
+import { Accordion, AccordionContent } from "@/components/ui/accordion";
+import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardContent,
@@ -9,10 +12,19 @@ import {
 } from "@/components/ui/card";
 import { LoadingSwap } from "@/components/ui/loading-swap";
 import { cn } from "@/lib/utils";
+import { aiAnalyzeSchema } from "@/services/resumes/schemas";
 import { experimental_useObject as useObject } from "@ai-sdk/react";
-import { UploadIcon } from "lucide-react";
-import { useRef, useState } from "react";
+import { AccordionItem, AccordionTrigger } from "@radix-ui/react-accordion";
+import type { DeepPartial } from "ai";
+import {
+  AlertCircleIcon,
+  CheckCircleIcon,
+  UploadIcon,
+  XCircleIcon,
+} from "lucide-react";
+import { useRef, useState, type ReactNode } from "react";
 import { toast } from "sonner";
+import { z } from "zod";
 
 export const ResumePageClient = ({ jobInfoId }: { jobInfoId: string }) => {
   const [isDragOver, setIsDragOver] = useState(false);
@@ -24,13 +36,13 @@ export const ResumePageClient = ({ jobInfoId }: { jobInfoId: string }) => {
     submit: generateAnalysis,
   } = useObject({
     api: "/api/ai/resumes/analyze",
-    schema: {},
+    schema: aiAnalyzeSchema,
     fetch: (url, options) => {
       const headers = new Headers(options?.headers);
       headers.delete("Content-Type");
       const formData = new FormData();
       if (fileRef.current) {
-        formData.append("resume", fileRef.current);
+        formData.append("resumeFile", fileRef.current);
       }
       formData.append("jobInfoId", jobInfoId);
 
@@ -124,6 +136,167 @@ export const ResumePageClient = ({ jobInfoId }: { jobInfoId: string }) => {
           </LoadingSwap>
         </CardContent>
       </Card>
+
+      <AnalysisResults aiAnalysis={aiAnalysis} isLoading={isLoading} />
+    </div>
+  );
+};
+
+type Keys = Exclude<keyof z.infer<typeof aiAnalyzeSchema>, "overallScore">;
+
+const AnalysisResults = ({
+  aiAnalysis,
+  isLoading,
+}: {
+  aiAnalysis: DeepPartial<z.infer<typeof aiAnalyzeSchema> | undefined>;
+  isLoading: boolean;
+}) => {
+  if (!isLoading && aiAnalysis == null) return null;
+
+  const sections: Record<Keys, string> = {
+    ats: "ATS Compatibility",
+    jobMatch: "Job Match",
+    writingAndFormatting: "Writing and Formatting",
+    keywordCoverage: "Keyword Coverage",
+    other: "Additional Insights",
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Analysis Results</CardTitle>
+        <CardDescription>
+          {aiAnalysis?.overallScore == null ? (
+            <Skeleton className="w-32" />
+          ) : (
+            `Overall Score: ${aiAnalysis.overallScore}/10`
+          )}
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Accordion type="multiple">
+          {Object.entries(sections).map(([key, title]) => {
+            const category = aiAnalysis?.[key as Keys];
+
+            return (
+              <AccordionItem value={title} key={key}>
+                <AccordionTrigger>
+                  <CategoryAccordionHeader
+                    title={title}
+                    score={category?.score}
+                  />
+                </AccordionTrigger>
+                <AccordionContent>
+                  <div className="space-y-4">
+                    <div className="text-muted-foreground">
+                      {category?.summary == null ? (
+                        <span className="space-y-2">
+                          <Skeleton />
+                          <Skeleton className="w-3/4" />
+                        </span>
+                      ) : (
+                        category.summary
+                      )}
+                    </div>
+                    <div className="space-y-3">
+                      {category?.feedback == null ? (
+                        <>
+                          <Skeleton className="h-16" />
+                          <Skeleton className="h-16" />
+                          <Skeleton className="h-16" />
+                        </>
+                      ) : (
+                        category.feedback.map((item, index) => {
+                          if (item == null) return null;
+                          return <FeedbackItem key={index} {...item} />;
+                        })
+                      )}
+                    </div>
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            );
+          })}
+        </Accordion>
+      </CardContent>
+    </Card>
+  );
+};
+
+const CategoryAccordionHeader = ({
+  title,
+  score,
+}: {
+  title: string;
+  score: number | undefined | null;
+}) => {
+  let badge: ReactNode;
+  if (score == null) {
+    badge = <Skeleton className="w-16" />;
+  } else if (score >= 8) {
+    badge = <Badge>Excellent</Badge>;
+  } else if (score >= 6) {
+    badge = <Badge variant="warning">Okay</Badge>;
+  } else {
+    badge = <Badge variant="destructive">Needs Work</Badge>;
+  }
+
+  return (
+    <div className="flex items-center justify-between w-full">
+      <div className="flex flex-col items-start gap-1">
+        <span>{title}</span>
+        <div className="no-underline">{badge}</div>
+      </div>
+      {score == null ? <Skeleton className="w-12" /> : `${score}/10`}
+    </div>
+  );
+};
+
+const FeedbackItem = ({
+  message,
+  name,
+  type,
+}: Partial<z.infer<typeof aiAnalyzeSchema>["ats"]["feedback"][number]>) => {
+  if (name == null || message == null || type == null) return null;
+
+  const getColors = () => {
+    switch (type) {
+      case "strength":
+        return "bg-primary/10 border border-primary/50";
+      case "major-improvement":
+        return "bg-destructive/10 dark:bg-destructive/20 border border-destructive/50 dark:border-warning/70";
+      case "minor-improvement":
+        return "bg-warning/10 border border-warning/40";
+      default:
+        throw new Error(`Unknown feedback type: ${type satisfies never}`);
+    }
+  };
+
+  const getIcon = () => {
+    switch (type) {
+      case "strength":
+        return <CheckCircleIcon className="size-4 text-primary" />;
+      case "minor-improvement":
+        return <AlertCircleIcon className="size-4 text-warning" />;
+      case "major-improvement":
+        return <XCircleIcon className="size-4 text-destructive" />;
+      default:
+        throw new Error(`Unknown feedback type: ${type satisfies never}`);
+    }
+  };
+
+  return (
+    <div
+      className={cn(
+        "flex items-baseline gap-3 pl-3 pr-5 py-5 rounded-lg",
+        getColors()
+      )}
+    >
+      <div>{getIcon()}</div>
+      <div className="flex flex-col gap-1">
+        <div className="text-base">{name}</div>
+        <div className="text-muted-foreground">{message}</div>
+      </div>
     </div>
   );
 };
