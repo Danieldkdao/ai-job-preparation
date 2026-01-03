@@ -4,8 +4,7 @@ import {
   type QuestionTable,
 } from "@/drizzle/schema";
 import { streamText, type ModelMessage } from "ai";
-import { openrouter } from "./models/openrouter";
-import { env } from "@/data/env/server";
+import { google } from "./models/google";
 
 export const generateAiQuestion = ({
   jobInfo,
@@ -30,7 +29,7 @@ export const generateAiQuestion = ({
   ]);
 
   return streamText({
-    model: openrouter.chat(env.OPEN_ROUTER_MODEL),
+    model: google("gemini-2.5-flash"),
     onFinish: ({ text }) => onFinish(text),
     messages: [
       ...previousMessages,
@@ -67,7 +66,7 @@ export const generateAiQuestionFeedback = ({
   answer: string;
 }) => {
   return streamText({
-    model: openrouter.chat(env.OPEN_ROUTER_MODEL),
+    model: google("gemini-2.5-flash"),
     prompt: answer,
     system: `You are an expert technical interviewer. Your job is to evaluate the candidate's answer to a technical interview question.
 

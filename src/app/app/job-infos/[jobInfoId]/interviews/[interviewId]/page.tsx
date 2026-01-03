@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/dialog";
 import { db } from "@/drizzle/db";
 import { InterviewTable } from "@/drizzle/schema";
-import { generateInterviewFeedback } from "@/features/interviews/actions";
 import { getInterviewIdTag } from "@/features/interviews/dbCache";
 import { getJobInfoIdTag } from "@/features/jobInfos/dbCache";
 import { formatDateTime } from "@/lib/formatters";
@@ -25,6 +24,7 @@ import { Loader2Icon } from "lucide-react";
 import { cacheTag } from "next/cache";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
+import { GenerateFeedbackButton } from "./_client";
 
 const InterviewPage = async ({
   params,
@@ -73,12 +73,7 @@ const InterviewPage = async ({
             fallback={<SkeletonButton className="w-32" />}
             result={(i) =>
               i.feedback == null ? (
-                <ActionButton
-                  action={generateInterviewFeedback.bind(null, i.id)}
-                  className="cursor-pointer"
-                >
-                  Generate Feedback
-                </ActionButton>
+                <GenerateFeedbackButton id={i.id}/>
               ) : (
                 <Dialog>
                   <DialogTrigger asChild>

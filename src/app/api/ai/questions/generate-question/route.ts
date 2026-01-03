@@ -37,10 +37,14 @@ export const POST = async (req: Request) => {
   }
 
   const { prompt: difficulty, jobInfoId } = result.data;
-  const { userId } = await getCurrentUser();
+  const { userId, user } = await getCurrentUser({ allData: true });
 
-  if (userId == null) {
+  if (userId == null || !user) {
     return new Response("You are not logged in", { status: 401 });
+  }
+
+  if (process.env.NODE_ENV === "production" && !user.isAllowed) {
+    return new Response("Feature disabled in production", { status: 400 });
   }
 
   if (!(await canCreateQuestion())) {

@@ -9,9 +9,14 @@ import { and, eq } from "drizzle-orm";
 import { cacheTag } from "next/cache";
 
 export const POST = async (req: Request) => {
-  const { userId } = await getCurrentUser();
-  if (userId == null) {
+  const { userId, user } = await getCurrentUser({ allData: true });
+
+  if (userId == null || !user) {
     return new Response("You are not logged in", { status: 401 });
+  }
+
+  if (process.env.NODE_ENV === "production" && !user.isAllowed) {
+    return new Response("Feature disabled in production", { status: 400 });
   }
 
   const formData = await req.formData();

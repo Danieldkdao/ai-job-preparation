@@ -1,7 +1,6 @@
 import { JobInfoTable } from "@/drizzle/schema";
-import { streamObject } from "ai";
-import { openrouter } from "../models/openrouter";
-import { env } from "@/data/env/server";
+import { Output, streamText } from "ai";
+import { google } from "../models/google";
 import { aiAnalyzeSchema } from "./schemas";
 
 export const analyzeResumeForJob = async ({
@@ -14,9 +13,9 @@ export const analyzeResumeForJob = async ({
     "title" | "experienceLevel" | "description"
   >;
 }) => {
-  return streamObject({
-    model: openrouter.chat(env.OPEN_ROUTER_MODEL),
-    schema: aiAnalyzeSchema,
+  return streamText({
+    model: google("gemini-2.5-flash"),
+    output: Output.object({ schema: aiAnalyzeSchema }),
     messages: [
       {
         role: "user",

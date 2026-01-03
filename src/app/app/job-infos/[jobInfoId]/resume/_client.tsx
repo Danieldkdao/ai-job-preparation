@@ -48,6 +48,9 @@ export const ResumePageClient = ({ jobInfoId }: { jobInfoId: string }) => {
 
       return fetch(url, { ...options, headers, body: formData });
     },
+    onError: (err) => {
+      toast.error(err.message);
+    },
   });
 
   const handleFileUpload = (file: File | null) => {
@@ -162,7 +165,7 @@ const AnalysisResults = ({
   };
 
   return (
-    <Card>
+    <Card className="w-full">
       <CardHeader>
         <CardTitle>Analysis Results</CardTitle>
         <CardDescription>
@@ -174,13 +177,13 @@ const AnalysisResults = ({
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <Accordion type="multiple">
+        <Accordion type="multiple" className="space-y-4">
           {Object.entries(sections).map(([key, title]) => {
             const category = aiAnalysis?.[key as Keys];
 
             return (
               <AccordionItem value={title} key={key}>
-                <AccordionTrigger>
+                <AccordionTrigger className="w-full cursor-pointer">
                   <CategoryAccordionHeader
                     title={title}
                     score={category?.score}

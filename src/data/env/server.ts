@@ -14,8 +14,7 @@ export const env = createEnv({
     CLERK_SECRET_KEY: z.string().min(1),
     HUME_API_KEY: z.string().min(1),
     HUME_SECRET_KEY: z.string().min(1),
-    OPEN_ROUTER_API_KEY: z.string().min(1),
-    OPEN_ROUTER_MODEL: z.string().min(1),
+    GEMINI_API_KEY: z.string().min(1),
   },
   // Local db
   // createFinalSchema: (env) => {

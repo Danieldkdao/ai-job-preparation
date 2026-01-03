@@ -34,12 +34,19 @@ export const createInterview = async ({
 }): Promise<
   { error: true; message: string } | { error: false; id: string }
 > => {
-  const { userId } = await getCurrentUser();
-  if (userId == null)
+  const { userId, user } = await getCurrentUser({ allData: true });
+  if (userId == null || !user)
     return {
       error: true,
       message: "You don't have permission to do this",
     };
+
+  if (process.env.NODE_ENV === "production" && !user.isAllowed) {
+    return {
+      error: true,
+      message: "Feature disabled in production",
+    };
+  }
 
   if (!(await canCreateInterview())) {
     return {

@@ -1,8 +1,7 @@
 import { JobInfoTable } from "@/drizzle/schema";
 import { fetchChatMessages } from "../hume/lib/api";
 import { generateText } from "ai";
-import { openrouter } from "./models/openrouter";
-import { env } from "@/data/env/server";
+import { google } from "./models/google";
 
 export const generateAiInterviewFeedback = async ({
   humeChatId,
@@ -36,7 +35,7 @@ export const generateAiInterviewFeedback = async ({
     .filter((m) => m !== null);
 
   const { text } = await generateText({
-    model: openrouter.chat(env.OPEN_ROUTER_MODEL),
+    model: google("gemini-2.5-flash"),
     prompt: JSON.stringify(formattedMessages),
     system: `You are an expert interview coach and evaluator. Your role is to analyze a mock job interview transcript and provide clear, detailed, and structured feedback on the interviewee's performance based on the job requirements. Your output should be in markdown format.
   

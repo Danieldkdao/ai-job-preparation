@@ -30,7 +30,7 @@ export default clerkMiddleware(async (auth, req) => {
   if (decision.isDenied()) {
     return new Response(null, { status: 403 });
   }
-  
+
   if (!isPublicRoute(req)) {
     await auth.protect();
   }

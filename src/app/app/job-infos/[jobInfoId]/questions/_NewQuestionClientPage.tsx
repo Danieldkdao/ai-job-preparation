@@ -20,14 +20,7 @@ import { formatQuestionDifficulty } from "@/features/questions/formatters";
 import { useState, type Dispatch, type SetStateAction } from "react";
 import { useChat } from "@ai-sdk/react";
 import { errorToast } from "@/lib/errorToast";
-import { DefaultChatTransport, UIMessage } from "ai";
-
-type QuestionResponseUIMessage = UIMessage<
-  never,
-  {
-    questionId: string;
-  }
->;
+import { DefaultChatTransport } from "ai";
 
 type Status = "awaiting-answer" | "awaiting-difficulty" | "init";
 
@@ -45,12 +38,12 @@ export const NewQuestionClientPage = ({
     setMessages: setQuestion,
     sendMessage: generateQuestion,
     status: ResponseProgress,
-  } = useChat<QuestionResponseUIMessage>({
+  } = useChat({
     transport: new DefaultChatTransport({
       api: "/api/ai/questions/generate-question",
     }),
     onData: (dataPart) => {
-      setQuestionId(dataPart.data);
+      setQuestionId(dataPart.data as string);
     },
     onFinish: () => {
       setStatus("awaiting-answer");

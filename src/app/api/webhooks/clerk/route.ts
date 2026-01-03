@@ -24,6 +24,7 @@ export async function POST(request: NextRequest) {
           imageUrl: clerkData.image_url,
           createdAt: new Date(clerkData.created_at),
           updatedAt: new Date(clerkData.updated_at),
+          isAllowed: false,
         });
         break;
       case "user.deleted":
