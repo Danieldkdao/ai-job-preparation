@@ -3,7 +3,7 @@ import { Outfit } from "next/font/google";
 import "./globals.css";
 import ClerkProvider from "@/services/clerk/components/ClerkProvider";
 import { ThemeProvider } from "next-themes";
-import { Toaster } from "sonner";
+import { Toaster } from "@/components/ui/sonner";
 import { Suspense } from "react";
 import { Loader2Icon } from "lucide-react";
 
