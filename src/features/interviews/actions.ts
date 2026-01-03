@@ -107,10 +107,17 @@ export const updateInterview = async (
 
 export const generateInterviewFeedback = async (interviewId: string) => {
   const { userId, user } = await getCurrentUser({ allData: true });
-  if (userId == null || user == null) {
+  if (userId == null || !user) {
     return {
       error: true,
       message: "You don't have permission to do this",
+    };
+  }
+
+  if (process.env.NODE_ENV === "production" && !user.isAllowed) {
+    return {
+      error: true,
+      message: "Feature disabled in production",
     };
   }
 
